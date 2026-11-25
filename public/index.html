@@ -4,10 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eat cake together</title>
+
     <link rel="stylesheet" href="style.css">
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+    </script>
 </head>
+
 <body>
-    <p>this is the html code.</p>
+  <p>this is the html code</p>
     <div class="backgroundC">
         <!-- <div id="colour1"></div> -->
         <div id="colour2"></div>
@@ -15,12 +26,17 @@
         <div id="colour4"></div>
     </div>
     
-    <div id="ThreeJSCanvas">Content</div>
+    <div id="ThreeJSCanvas"></div>
 
     <!-- grain code from https://lovecss.com/css-noise-generator, film grain -->
-   <div class="grain-overlay"></div>
+    <div class="grain-overlay"></div>
 
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
 
-<script src="app.js"></script>
+    <!-- threeJs link -->
+    <script type="module" src="main.js"></script>
+
+    <!-- regular js -->
+    <script src="app.js"></script>
 </body>
 </html>
