@@ -30,33 +30,36 @@ body {
     bottom: 0;
     right: 0;
     border-radius: 50%;
-    height: 30vh;
-    width: 80vw;
-    background-color: #E3CEB3;
+    height: 50vh;
+    width: 50vw;
+    background-color: #FFFDD0;
     filter: blur(6rem);
     mix-blend-mode: multiply;
 }
 
 #colour3 {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 30%;
+    right: 30%;
     border-radius: 50%;
     height: 20vh;
     width: 40vw;
     background-color: #B6D9B7;
     filter: blur(6rem);
     mix-blend-mode: multiply;
+    opacity: 0.4;
 }
 
 #colour4 {
     position: absolute;
     top: 10%;
     border-radius: 50%;
-    height: 50vh;
-    width: 80vw;
-    background-color: #FFFDD0;
+    height: 80vh;
+    width: 50vw;
+    background-color:#E3CEB3 ;
     filter: blur(6rem);
+    opacity: 0.4;
+    /* #FFFDD0, #E3CEB3 */
 }
 
 /* grain overlay code from https://lovecss.com/css-noise-generator, film grain*/
