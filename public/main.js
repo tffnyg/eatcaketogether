@@ -26,13 +26,46 @@ const dirLight = new THREE.DirectionalLight(0xFFE6C2, 1.4);
 dirLight.position.set(4, 7, 5);
 scene.add(dirLight);
 
-// 6. Temporary Test Cube (to verify layering)
-const testBox = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshStandardMaterial({ color: 0xD94E5A })
-);
-testBox.position.y = 0.5;
-scene.add(testBox);
+// // 6. Temporary Test Cube (to verify layering)
+// const testBox = new THREE.Mesh(
+//   new THREE.BoxGeometry(1, 1, 1),
+//   new THREE.MeshStandardMaterial({ color: 0xD94E5A })
+// );
+// testBox.position.y = 0.5;
+// scene.add(testBox);
+
+// --- add PLATE with crumbs! Gemini Guidance + beginner Code
+const plateMat = new THREE.MeshStandardMaterial({ color: 0xFCFBF0, roughness: 0.25 });
+const outerRimMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.65, 0.08, 48), plateMat);
+const innerBaseMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.35, 0.09, 48), plateMat);
+innerBaseMesh.position.y = 0.02;
+
+
+// --- render plate onto scene
+let plateGroup = new THREE.Group();
+plateGroup.add(outerRimMesh);
+plateGroup.add(innerBaseMesh);
+
+// crumbs
+const crumbGeo = new THREE.DodecahedronGeometry(0.03, 0);
+let crumbColour = 0xD9A773;
+const crumbMat = new THREE.MeshStandardMaterial({ color: crumbColour, roughness: 0.9 });
+let crumbs = [];
+
+for (let i=0; i < 5; i++) {
+  const crumb = new THREE.Mesh(crumbGeo, crumbMat);
+  const x = (Math.random() - 0.5) * 0.8;
+  const z = (Math.random() - 0.5) * 0.8;
+  crumb.position.set(x, 0.075, z);
+
+  plateGroup.add(crumb);
+  crumbs.push(crumb);
+  crumb.visible = true; //boolean toogle crumbs visibility 
+}
+
+scene.add(plateGroup);
+// --- end PLATE + crumbs
+
 
 // 7. Handle Window Resize
 window.addEventListener('resize', () => {
@@ -44,7 +77,7 @@ window.addEventListener('resize', () => {
 // 8. Animation Loop
 function animate() {
   requestAnimationFrame(animate);
-  testBox.rotation.y += 0.01;
+  // testBox.rotation.y += 0.01;
   renderer.render(scene, camera);
 }
 animate();
