@@ -46,9 +46,42 @@ scene.add(dirLight);
 // testBox.position.y = 0.5;
 // scene.add(testBox);
 
+// ----------- CAKE FLAVOURS ------------
+const cakeFLAVOURS = {
+  strawberry: {
+    sponge: 0xE6D39A,
+    cream: 0xE0A8A8,
+    frosting: 0xFCFBF7,
+    berry: 0xD93848,
+    plateRim: 0x6E4229,
+    hasDollop: true,
+    hasBerry: true,
+  },
+
+  chocolate: {
+    sponge: 0x573027,
+    cream: 0x9E7955,
+    frosting: 0x9E7955,
+    plateRim: 0x114180, 
+    hasDollop: true,
+    hasBerry: false,
+  },
+
+  pistachio: {
+    sponge: 0xE8F8B0,
+    cream: 0x8F2150,
+    frosting: 0xF7DCE7,
+    berry: 0x991828,
+    plateRim: 0x3D5233, 
+    hasDollop: false,
+    hasBerry: true,
+  }
+}
+
+
 // -----PLATE with crumbs! Gemini updated the plate code in full ------------------
 const plateColor = 0xFCFBF0;
-const plateRimColor = 0x6E4229; // <-- Change this variable anytime to recolor the outer rim!
+const plateRimColor = cakeFLAVOURS.strawberry.plateRim;
 
 const plateMat = new THREE.MeshStandardMaterial({ color: plateColor, roughness: 0.25 });
 const outerRimMat = new THREE.MeshStandardMaterial({ color: plateRimColor, roughness: 0.35 });
@@ -167,6 +200,9 @@ const frostingMat = new THREE.MeshStandardMaterial({ color: frostingColour, roug
 const cakeGroup = new THREE.Group();
 const biteChunks = [];
 
+let dollopMesh;
+let berry;
+
 // for loop to create the bite sections, Gemini Code but bulit block by block (guided)
 for (let i = 0; i < 5; i++) {
   const zFront = 1.1 - i * 0.39;
@@ -184,9 +220,9 @@ for (let i = 0; i < 5; i++) {
     const left = createBitePair(zFront, zBack, -wFront, 0, -wBack, 0);
     const right = createBitePair(zFront, zBack, 0, wFront, 0, wBack);
 
-    // Piped dollop & berry -- biteChunks[9]
+    // Piped dollop & berry -- biteChunks[8]
     const extrasGroup = new THREE.Group();
-    if (hasDollop) {
+     // dollop
       const dollopProfile = [
         new THREE.Vector2(0.00, 0.00),
         new THREE.Vector2(0.20, 0.00),
@@ -197,19 +233,17 @@ for (let i = 0; i < 5; i++) {
         new THREE.Vector2(0.00, 0.21)
       ];
       const dollopGeo = new THREE.LatheGeometry(dollopProfile, 32);
-      const dollopMesh = new THREE.Mesh(dollopGeo, creamMat);
+      dollopMesh = new THREE.Mesh(dollopGeo, creamMat);
       dollopMesh.position.set(0, 0.83, -0.48);
       extrasGroup.add(dollopMesh);
-    }
 
-    if (hasBerry) {
-      const berry = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 24), berryMat);
+      // berry
+      berry = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 24), berryMat);
       berry.scale.set(1, 1.15, 1);
       const berryY = hasDollop ? 1.07 : 0.94;
       berry.position.set(0, berryY, -0.48);
       extrasGroup.add(berry);
-    }
-
+    
 
     // Angled back frosting wall split into Left and Right halves
     const backCreamThickness = 0.08;
@@ -244,7 +278,27 @@ for (let i = 0; i < 5; i++) {
 // end for loop for cake layers
 
 scene.add(cakeGroup);
-biteChunks[9].visible = false;
+// biteChunks[9].visible = false; - test bites
+
+// Put applyCakeFlavor right here!
+function applyCakeFlavor(flavorKey) {
+  const flavor = cakeFLAVOURS[flavorKey] || cakeFLAVOURS.strawberry; // strawberry is default
+
+  spongeMat.color.setHex(flavor.sponge);
+  creamMat.color.setHex(flavor.cream);
+  frostingMat.color.setHex(flavor.frosting);
+  if (flavor.berry) berryMat.color.setHex(flavor.berry);
+  outerRimMat.color.setHex(flavor.plateRim);
+
+  if (dollopMesh) dollopMesh.visible = flavor.hasDollop;
+  if (berry) {
+    berry.visible = flavor.hasBerry;
+    berry.position.y = flavor.hasDollop ? 1.07 : 0.94;
+  }
+}
+
+// Optional 1-line test (delete or comment out after testing):
+applyCakeFlavor('pistachio');
 
 // ----- CAKE END ----------------------------------------------------
 
