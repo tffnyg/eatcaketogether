@@ -86,10 +86,10 @@ let crumbColour = 0xD9A773;
 const crumbMat = new THREE.MeshStandardMaterial({ color: crumbColour, roughness: 0.9 });
 let crumbs = [];
 
-const NumofCrumbs = Math.floor(Math.random()*7) +4; 
+const NumofCrumbs = Math.floor(Math.random() * 7) + 4;
 console.log(NumofCrumbs);
 
- for (let i=0; i < NumofCrumbs; i++) {
+for (let i = 0; i < NumofCrumbs; i++) {
   const crumb = new THREE.Mesh(crumbGeo, crumbMat);
   const x = (Math.random() - 0.5) * 0.85;
   const z = (Math.random() - 0.5) * 1.1 + 0.125;
@@ -105,13 +105,14 @@ scene.add(plateGroup);
 
 
 // ----- CAKE BASE ------------------------------------------------
-function createCakeLayer(zFront, zBack, wFront, wBack, height, material) {
+function createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, height, material) {
+
   // 1. Draw the 4 corners of the flat wedge, Gemini
   const shape = new THREE.Shape();
-  shape.moveTo(-wFront, -zFront);
-  shape.lineTo(wFront, -zFront);
-  shape.lineTo(wBack, -zBack);
-  shape.lineTo(-wBack, -zBack);
+  shape.moveTo(xLeftFront, -zFront);
+  shape.lineTo(xRightFront, -zFront);
+  shape.lineTo(xRightBack, -zBack);
+  shape.lineTo(xLeftBack, -zBack);
   shape.closePath();
 
   // 2. Give the flat shape 3D thickness (height), Gemini
@@ -132,6 +133,26 @@ let spongeColour = 0xF5D59C;
 let creamColour = 0xFFFDF8;
 let frostingColour = 0xF28B9C;
 
+function createBitePair(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack) {
+  // Bottom layer
+  const bottomSponge = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.30, spongeMat);
+  bottomSponge.position.y = 0.03;
+  const filling = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.10, creamMat);
+  filling.position.y = 0.33;
+  const bottomChunk = new THREE.Group();
+  bottomChunk.add(bottomSponge, filling);
+
+  // Top layer
+  const topSponge = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.30, spongeMat);
+  topSponge.position.y = 0.42;
+  const frosting = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.11, frostingMat);
+  frosting.position.y = 0.72;
+  const topChunk = new THREE.Group();
+  topChunk.add(topSponge, frosting);
+
+  return { topChunk, bottomChunk };
+}
+
 // Garnish toggles & berry color (easy to swap per cake flavor!), Gemini
 let hasDollop = true;
 let hasBerry = true;
@@ -147,45 +168,24 @@ const cakeGroup = new THREE.Group();
 const biteChunks = [];
 
 // for loop to create the bite sections, Gemini Code but bulit block by block (guided)
-for(let i = 0; i < 5; i++){
-  const zFront = 1.1 - i* 0.39;
-  const zBack = 1.1 - (i + 1)* 0.39; 
-  const wFront = i* 0.15; 
-  const wBack = (i + 1)* 0.15;
- 
-  // bulid bottom up 
-  // bottom layer
-  const bottomSponge = createCakeLayer(zFront, zBack, wFront, wBack, 0.30, spongeMat);
-  bottomSponge.position.y = 0.03;
-  const filling = createCakeLayer(zFront, zBack, wFront, wBack, 0.10, creamMat);
-  filling.position.y = 0.33;
-  const bottomChunk = new THREE.Group();
-  bottomChunk.add(bottomSponge, filling);
+for (let i = 0; i < 5; i++) {
+  const zFront = 1.1 - i * 0.39;
+  const zBack = 1.1 - (i + 1) * 0.39;
+  const wFront = i * 0.15;
+  const wBack = (i + 1) * 0.15;
 
-  // top layer
-  const topSponge = createCakeLayer(zFront, zBack, wFront, wBack, 0.3, spongeMat);
-  topSponge.position.y = 0.42;
-  const frosting = createCakeLayer(zFront, zBack, wFront, wBack, 0.11, frostingMat);
-  frosting.position.y = 0.72;
-  const topChunk = new THREE.Group();
-  topChunk.add(topSponge, frosting); 
+  if (i < 4) {
+    // Sections 0–3: Full-width bites (-w to +w)
+    const { topChunk, bottomChunk } = createBitePair(zFront, zBack, -wFront, wFront, -wBack, wBack);
+    biteChunks.push(topChunk, bottomChunk);
+    cakeGroup.add(topChunk, bottomChunk);
+  } else {
+    // Section 4: Split into Left half (-w to 0) and Right half (0 to +w)
+    const left = createBitePair(zFront, zBack, -wFront, 0, -wBack, 0);
+    const right = createBitePair(zFront, zBack, 0, wFront, 0, wBack);
 
-  /// Back crust frosting wall & optional top garnishes (section 4), Gemini
-  if (i === 4) {
-    // 1. Angled back frosting wall matching the slice's flare
-    const backCreamThickness = 0.08;
-    const zCreamBack = -0.85 - backCreamThickness;
-    const wCreamBack = 0.75 + (backCreamThickness * 0.385);
-
-    const backCreamTop = createCakeLayer(-0.85, zCreamBack, 0.75, wCreamBack, 0.41, frostingMat);
-    backCreamTop.position.y = 0.42;
-    topChunk.add(backCreamTop);
-
-    const backCreamBottom = createCakeLayer(-0.85, zCreamBack, 0.75, wCreamBack, 0.40, frostingMat);
-    backCreamBottom.position.y = 0.03;
-    bottomChunk.add(backCreamBottom);
-
-    // 2. Smooth, round whipped-cream dollop
+    // Piped dollop & berry -- biteChunks[9]
+    const extrasGroup = new THREE.Group();
     if (hasDollop) {
       const dollopProfile = [
         new THREE.Vector2(0.00, 0.00),
@@ -199,28 +199,52 @@ for(let i = 0; i < 5; i++){
       const dollopGeo = new THREE.LatheGeometry(dollopProfile, 32);
       const dollopMesh = new THREE.Mesh(dollopGeo, creamMat);
       dollopMesh.position.set(0, 0.83, -0.48);
-
-      topChunk.add(dollopMesh);
+      extrasGroup.add(dollopMesh);
     }
 
-    // 3. Larger, plumper berry
     if (hasBerry) {
       const berry = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 24), berryMat);
       berry.scale.set(1, 1.15, 1);
       const berryY = hasDollop ? 1.07 : 0.94;
       berry.position.set(0, berryY, -0.48);
-
-      topChunk.add(berry);
+      extrasGroup.add(berry);
     }
-  }
 
-  biteChunks.push(topChunk, bottomChunk);
-  cakeGroup.add(topChunk, bottomChunk);
+
+    // Angled back frosting wall split into Left and Right halves
+    const backCreamThickness = 0.08;
+    const zCreamBack = -0.85 - backCreamThickness;
+    const wCreamBack = 0.75 + (backCreamThickness * 0.385);
+
+    const backCreamLeftTop = createCakeLayer(-0.85, zCreamBack, -0.75, 0, -wCreamBack, 0, 0.41, frostingMat);
+    backCreamLeftTop.position.y = 0.42;
+    left.topChunk.add(backCreamLeftTop);
+
+    const backCreamLeftBottom = createCakeLayer(-0.85, zCreamBack, -0.75, 0, -wCreamBack, 0, 0.40, frostingMat);
+    backCreamLeftBottom.position.y = 0.03;
+    left.bottomChunk.add(backCreamLeftBottom);
+
+    const backCreamRightTop = createCakeLayer(-0.85, zCreamBack, 0, 0.75, 0, wCreamBack, 0.41, frostingMat);
+    backCreamRightTop.position.y = 0.42;
+    right.topChunk.add(backCreamRightTop);
+
+    const backCreamRightBottom = createCakeLayer(-0.85, zCreamBack, 0, 0.75, 0, wCreamBack, 0.40, frostingMat);
+    backCreamRightBottom.position.y = 0.03;
+    right.bottomChunk.add(backCreamRightBottom);
+
+    if (hasDollop || hasBerry) {
+      biteChunks.push(extrasGroup);
+      cakeGroup.add(extrasGroup);
+    }
+
+    biteChunks.push(left.topChunk, left.bottomChunk, right.topChunk, right.bottomChunk);
+    cakeGroup.add(left.topChunk, left.bottomChunk, right.topChunk, right.bottomChunk);
+  }
 }
 // end for loop for cake layers
 
 scene.add(cakeGroup);
-biteChunks[8].visible = false; 
+biteChunks[9].visible = false;
 
 // ----- CAKE END ----------------------------------------------------
 
