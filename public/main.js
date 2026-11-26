@@ -132,6 +132,13 @@ let spongeColour = 0xF5D59C;
 let creamColour = 0xFFFDF8;
 let frostingColour = 0xF28B9C;
 
+// Garnish toggles & berry color (easy to swap per cake flavor!), Gemini
+let hasDollop = true;
+let hasBerry = true;
+let berryColour = 0xD93848;
+
+const berryMat = new THREE.MeshStandardMaterial({ color: berryColour, roughness: 0.25 });
+
 const spongeMat = new THREE.MeshStandardMaterial({ color: spongeColour, roughness: 0.8 });
 const creamMat = new THREE.MeshStandardMaterial({ color: creamColour, roughness: 0.5 });
 const frostingMat = new THREE.MeshStandardMaterial({ color: frostingColour, roughness: 0.4 });
@@ -163,13 +170,57 @@ for(let i = 0; i < 5; i++){
   const topChunk = new THREE.Group();
   topChunk.add(topSponge, frosting); 
 
+  /// Back crust frosting wall & optional top garnishes (section 4), Gemini
+  if (i === 4) {
+    // 1. Angled back frosting wall matching the slice's flare
+    const backCreamThickness = 0.08;
+    const zCreamBack = -0.85 - backCreamThickness;
+    const wCreamBack = 0.75 + (backCreamThickness * 0.385);
+
+    const backCreamTop = createCakeLayer(-0.85, zCreamBack, 0.75, wCreamBack, 0.41, frostingMat);
+    backCreamTop.position.y = 0.42;
+    topChunk.add(backCreamTop);
+
+    const backCreamBottom = createCakeLayer(-0.85, zCreamBack, 0.75, wCreamBack, 0.40, frostingMat);
+    backCreamBottom.position.y = 0.03;
+    bottomChunk.add(backCreamBottom);
+
+    // 2. Smooth, round whipped-cream dollop
+    if (hasDollop) {
+      const dollopProfile = [
+        new THREE.Vector2(0.00, 0.00),
+        new THREE.Vector2(0.20, 0.00),
+        new THREE.Vector2(0.22, 0.05),
+        new THREE.Vector2(0.18, 0.11),
+        new THREE.Vector2(0.09, 0.16),
+        new THREE.Vector2(0.02, 0.20),
+        new THREE.Vector2(0.00, 0.21)
+      ];
+      const dollopGeo = new THREE.LatheGeometry(dollopProfile, 32);
+      const dollopMesh = new THREE.Mesh(dollopGeo, creamMat);
+      dollopMesh.position.set(0, 0.83, -0.48);
+
+      topChunk.add(dollopMesh);
+    }
+
+    // 3. Larger, plumper berry
+    if (hasBerry) {
+      const berry = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 24), berryMat);
+      berry.scale.set(1, 1.15, 1);
+      const berryY = hasDollop ? 1.07 : 0.94;
+      berry.position.set(0, berryY, -0.48);
+
+      topChunk.add(berry);
+    }
+  }
+
   biteChunks.push(topChunk, bottomChunk);
   cakeGroup.add(topChunk, bottomChunk);
 }
 // end for loop for cake layers
 
 scene.add(cakeGroup);
-//biteChunks[3].visible = false; -test bites
+biteChunks[8].visible = false; 
 
 // ----- CAKE END ----------------------------------------------------
 
