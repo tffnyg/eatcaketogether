@@ -46,17 +46,39 @@ scene.add(dirLight);
 // testBox.position.y = 0.5;
 // scene.add(testBox);
 
-// -----PLATE with crumbs! Gemini Guidance + beginner Code ------------------
-const plateMat = new THREE.MeshStandardMaterial({ color: 0xFCFBF0, roughness: 0.25 });
-const outerRimMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.65, 0.08, 48), plateMat);
-const innerBaseMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.65, 1.65, 0.09, 48), plateMat);
-innerBaseMesh.position.y = 0.02;
+// -----PLATE with crumbs! Gemini updated the plate code in full ------------------
+const plateColor = 0xFCFBF0;
+const plateRimColor = 0x6E4229; // <-- Change this variable anytime to recolor the outer rim!
 
+const plateMat = new THREE.MeshStandardMaterial({ color: plateColor, roughness: 0.25 });
+const outerRimMat = new THREE.MeshStandardMaterial({ color: plateRimColor, roughness: 0.35 });
+
+// 2D cross-section spun 360° around the Y-axis
+const platePoints = [
+  new THREE.Vector2(0.00, 0.00), // Center bottom
+  new THREE.Vector2(1.45, 0.00), // Outer bottom foot
+  new THREE.Vector2(1.95, 0.09), // Outer sloped rim edge
+  new THREE.Vector2(1.88, 0.10), // Outer rounded rim lip
+  new THREE.Vector2(1.46, 0.045), // Base of outer rim slope
+  new THREE.Vector2(1.40, 0.065), // Inner rim ridge peak
+  new THREE.Vector2(1.34, 0.03),  // Inner sunken well edge
+  new THREE.Vector2(0.00, 0.03)   // Center of sunken well floor
+];
+
+const plateGeo = new THREE.LatheGeometry(platePoints, 64);
+const plateMesh = new THREE.Mesh(plateGeo, plateMat);
+
+// Dark outer rim ring hugging the outer lip (radius 1.915, height 0.095)
+const outerRimGeo = new THREE.TorusGeometry(1.915, 0.02, 16, 64);
+const outerRimMesh = new THREE.Mesh(outerRimGeo, outerRimMat);
+outerRimMesh.rotation.x = Math.PI / 2;
+outerRimMesh.position.y = 0.095;
 
 // --- render plate onto scene
 let plateGroup = new THREE.Group();
-plateGroup.add(outerRimMesh);
-plateGroup.add(innerBaseMesh);
+plateGroup.add(plateMesh);
+plateGroup.add(outerRimMesh); // Gemini added outerRim (coloured)
+
 
 // CRUMBS
 const crumbGeo = new THREE.DodecahedronGeometry(0.03, 0);
@@ -69,9 +91,9 @@ console.log(NumofCrumbs);
 
  for (let i=0; i < NumofCrumbs; i++) {
   const crumb = new THREE.Mesh(crumbGeo, crumbMat);
-  const x = (Math.random() - 0.5) * 0.8;
-  const z = (Math.random() - 0.5) * 0.8;
-  crumb.position.set(x, 0.075, z);
+  const x = (Math.random() - 0.5) * 0.85;
+  const z = (Math.random() - 0.5) * 1.1 + 0.125;
+  crumb.position.set(x, 0.045, z);
 
   plateGroup.add(crumb);
   crumbs.push(crumb);
@@ -105,34 +127,39 @@ function createCakeLayer(zFront, zBack, wFront, wBack, height, material) {
   return new THREE.Mesh(geometry, material);
 }
 
-const spongeMat = new THREE.MeshStandardMaterial({ color: 0xF5D59C, roughness: 0.8 });
-const creamMat = new THREE.MeshStandardMaterial({ color: 0xFFFDF8, roughness: 0.5 });
-const frostingMat = new THREE.MeshStandardMaterial({ color: 0xF28B9C, roughness: 0.4 });
+//change cake layer colours
+let spongeColour = 0xF5D59C;
+let creamColour = 0xFFFDF8;
+let frostingColour = 0xF28B9C;
+
+const spongeMat = new THREE.MeshStandardMaterial({ color: spongeColour, roughness: 0.8 });
+const creamMat = new THREE.MeshStandardMaterial({ color: creamColour, roughness: 0.5 });
+const frostingMat = new THREE.MeshStandardMaterial({ color: frostingColour, roughness: 0.4 });
 
 const cakeGroup = new THREE.Group();
 const biteChunks = [];
 
 // for loop to create the bite sections, Gemini Code but bulit block by block (guided)
 for(let i = 0; i < 5; i++){
-  const zFront = 0.9 - i* 0.36;
-  const zBack = 0.9 - (i + 1)* 0.36; 
-  const wFront = i* 0.144; 
-  const wBack = (i + 1)* 0.144;
+  const zFront = 1.1 - i* 0.39;
+  const zBack = 1.1 - (i + 1)* 0.39; 
+  const wFront = i* 0.15; 
+  const wBack = (i + 1)* 0.15;
  
   // bulid bottom up 
   // bottom layer
-  const bottomSponge = createCakeLayer(zFront, zBack, wFront, wBack, 0.22, spongeMat);
-  bottomSponge.position.y = 0.065;
-  const filling = createCakeLayer(zFront, zBack, wFront, wBack, 0.08, creamMat);
-  filling.position.y = 0.285;
+  const bottomSponge = createCakeLayer(zFront, zBack, wFront, wBack, 0.30, spongeMat);
+  bottomSponge.position.y = 0.03;
+  const filling = createCakeLayer(zFront, zBack, wFront, wBack, 0.10, creamMat);
+  filling.position.y = 0.33;
   const bottomChunk = new THREE.Group();
   bottomChunk.add(bottomSponge, filling);
 
   // top layer
-  const topSponge = createCakeLayer(zFront, zBack, wFront, wBack, 0.22, spongeMat);
-  topSponge.position.y = 0.365;
-  const frosting = createCakeLayer(zFront, zBack, wFront, wBack, 0.09, frostingMat);
-  frosting.position.y = 0.585;
+  const topSponge = createCakeLayer(zFront, zBack, wFront, wBack, 0.3, spongeMat);
+  topSponge.position.y = 0.42;
+  const frosting = createCakeLayer(zFront, zBack, wFront, wBack, 0.11, frostingMat);
+  frosting.position.y = 0.72;
   const topChunk = new THREE.Group();
   topChunk.add(topSponge, frosting); 
 
