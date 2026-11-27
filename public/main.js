@@ -62,7 +62,7 @@ const cakeFLAVOURS = {
     sponge: 0x573027,
     cream: 0x9E7955,
     frosting: 0x9E7955,
-    plateRim: 0x114180, 
+    plateRim: 0x114180,
     hasDollop: true,
     hasBerry: false,
   },
@@ -72,7 +72,7 @@ const cakeFLAVOURS = {
     cream: 0x8F2150,
     frosting: 0xF7DCE7,
     berry: 0x991828,
-    plateRim: 0x3D5233, 
+    plateRim: 0x3D5233,
     hasDollop: false,
     hasBerry: true,
   }
@@ -167,15 +167,15 @@ let creamColour = 0xFFFDF8;
 let frostingColour = 0xF28B9C;
 
 function createBitePair(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack) {
-  // Bottom layer
+  // Bottom layer (0.03 -> 0.33)
   const bottomSponge = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.30, spongeMat);
   bottomSponge.position.y = 0.03;
-  const filling = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.10, creamMat);
+  const filling = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.09, creamMat);
   filling.position.y = 0.33;
   const bottomChunk = new THREE.Group();
   bottomChunk.add(bottomSponge, filling);
 
-  // Top layer
+  // Top layer (0.42 -> 0.72 -> 0.83)
   const topSponge = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.30, spongeMat);
   topSponge.position.y = 0.42;
   const frosting = createCakeLayer(zFront, zBack, xLeftFront, xRightFront, xLeftBack, xRightBack, 0.11, frostingMat);
@@ -222,47 +222,47 @@ for (let i = 0; i < 5; i++) {
 
     // Piped dollop & berry -- biteChunks[8]
     const extrasGroup = new THREE.Group();
-     // dollop
-      const dollopProfile = [
-        new THREE.Vector2(0.00, 0.00),
-        new THREE.Vector2(0.20, 0.00),
-        new THREE.Vector2(0.22, 0.05),
-        new THREE.Vector2(0.18, 0.11),
-        new THREE.Vector2(0.09, 0.16),
-        new THREE.Vector2(0.02, 0.20),
-        new THREE.Vector2(0.00, 0.21)
-      ];
-      const dollopGeo = new THREE.LatheGeometry(dollopProfile, 32);
-      dollopMesh = new THREE.Mesh(dollopGeo, creamMat);
-      dollopMesh.position.set(0, 0.83, -0.48);
-      extrasGroup.add(dollopMesh);
+    // dollop
+    const dollopProfile = [
+      new THREE.Vector2(0.00, 0.00),
+      new THREE.Vector2(0.20, 0.00),
+      new THREE.Vector2(0.22, 0.05),
+      new THREE.Vector2(0.18, 0.11),
+      new THREE.Vector2(0.09, 0.16),
+      new THREE.Vector2(0.02, 0.20),
+      new THREE.Vector2(0.00, 0.21)
+    ];
+    const dollopGeo = new THREE.LatheGeometry(dollopProfile, 32);
+    dollopMesh = new THREE.Mesh(dollopGeo, frostingMat);
+    dollopMesh.position.set(0, 0.83, -0.48);
+    extrasGroup.add(dollopMesh);
 
-      // berry
-      berry = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 24), berryMat);
-      berry.scale.set(1, 1.15, 1);
-      const berryY = hasDollop ? 1.07 : 0.94;
-      berry.position.set(0, berryY, -0.48);
-      extrasGroup.add(berry);
-    
+    // berry
+    berry = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 24), berryMat);
+    berry.scale.set(1, 1.15, 1);
+    const berryY = hasDollop ? 1.07 : 0.94;
+    berry.position.set(0, berryY, -0.48);
+    extrasGroup.add(berry);
+
 
     // Angled back frosting wall split into Left and Right halves
     const backCreamThickness = 0.08;
     const zCreamBack = -0.85 - backCreamThickness;
     const wCreamBack = 0.75 + (backCreamThickness * 0.385);
 
-    const backCreamLeftTop = createCakeLayer(-0.85, zCreamBack, -0.75, 0, -wCreamBack, 0, 0.41, frostingMat);
-    backCreamLeftTop.position.y = 0.42;
+    const backCreamLeftTop = createCakeLayer(-0.8501, zCreamBack, -0.75, 0, -wCreamBack, 0, 0.4102, frostingMat);
+    backCreamLeftTop.position.y = 0.4199;
     left.topChunk.add(backCreamLeftTop);
 
-    const backCreamLeftBottom = createCakeLayer(-0.85, zCreamBack, -0.75, 0, -wCreamBack, 0, 0.40, frostingMat);
+    const backCreamLeftBottom = createCakeLayer(-0.8501, zCreamBack, -0.75, 0, -wCreamBack, 0, 0.40, frostingMat);
     backCreamLeftBottom.position.y = 0.03;
     left.bottomChunk.add(backCreamLeftBottom);
 
-    const backCreamRightTop = createCakeLayer(-0.85, zCreamBack, 0, 0.75, 0, wCreamBack, 0.41, frostingMat);
-    backCreamRightTop.position.y = 0.42;
+    const backCreamRightTop = createCakeLayer(-0.8501, zCreamBack, 0, 0.75, 0, wCreamBack, 0.4102, frostingMat);
+    backCreamRightTop.position.y = 0.4199;
     right.topChunk.add(backCreamRightTop);
 
-    const backCreamRightBottom = createCakeLayer(-0.85, zCreamBack, 0, 0.75, 0, wCreamBack, 0.40, frostingMat);
+    const backCreamRightBottom = createCakeLayer(-0.8501, zCreamBack, 0, 0.75, 0, wCreamBack, 0.40, frostingMat);
     backCreamRightBottom.position.y = 0.03;
     right.bottomChunk.add(backCreamRightBottom);
 
@@ -298,10 +298,50 @@ function applyCakeFlavor(flavorKey) {
 }
 
 // Optional 1-line test (delete or comment out after testing):
-applyCakeFlavor('pistachio');
+applyCakeFlavor('strawberry');
 
 // ----- CAKE END ----------------------------------------------------
 
+// ----- JELLY WOBBLE PHYSICS (s3-7), Gemini ----------------------------------
+let wobblePos = 0;      // Current vertical stretch/squash offset
+let wobbleVel = 0;      // Current bounce speed
+const stiffness = 220;  // Higher = snappier jiggle
+const damping = 16;     // Higher = settles faster
+
+function pokeCake(strength = -2.2) {
+  wobbleVel += strength; // Negative pushes the cake down so it rebounds up
+}
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let isHoveringCake = false;
+
+function checkCakeHit(event) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(pointer, camera);
+  // Only check visible cake chunks
+  const hits = raycaster.intersectObjects(cakeGroup.children, true)
+    .filter(hit => hit.object.visible && hit.object.parent?.visible !== false);
+  return hits.length > 0;
+}
+
+window.addEventListener('pointermove', (e) => {
+  const hovering = checkCakeHit(e);
+  if (hovering && !isHoveringCake) {
+    pokeCake(-0.5); // Subtle jiggle when your cursor brushes the cake
+  }
+  isHoveringCake = hovering;
+  document.body.style.cursor = hovering ? 'pointer' : 'default';
+});
+
+window.addEventListener('pointerdown', (e) => {
+  if (checkCakeHit(e)) {
+    pokeCake(-2.0); // Juicy bounce when poked/clicked
+  }
+});
 
 // SETUP 7. Handle Window Resize
 window.addEventListener('resize', () => {
@@ -311,10 +351,44 @@ window.addEventListener('resize', () => {
 });
 
 // SETUP 8. Animation Loop
-function animate() {
+let lastTime = performance.now();
+let lastAzimuth = controls.getAzimuthalAngle();
+
+function animate(now = performance.now()) {
   requestAnimationFrame(animate);
   controls.update();
   // testBox.rotation.y += 0.01;
+
+  //JELLY PHYSICS ANIMATION, Gemini
+  // Cap dt at 0.05s so switching browser tabs never explodes the spring
+  const dt = Math.min((now - lastTime) / 1000, 0.05);
+  lastTime = now;
+
+  // Hooke's law spring + damping
+  const force = -stiffness * wobblePos - damping * wobbleVel;
+  wobbleVel += force * dt;
+  wobblePos += wobbleVel * dt;
+
+  // Squash Y, widen X & Z slightly to preserve volume
+  const scaleY = 1 + wobblePos;
+  const scaleXZ = 1 - wobblePos * 0.45;
+  cakeGroup.scale.set(scaleXZ, scaleY, scaleXZ);
+
+  //JELLY PHYSICS ANIMATION - Camera Orbit, Gemini 
+  // Subtle jiggle when orbiting the camera around the plate
+  const currentAzimuth = controls.getAzimuthalAngle();
+  let deltaAngle = currentAzimuth - lastAzimuth;
+  // Handle wrap-around at +PI / -PI so spinning past 180° doesn't cause a sudden spike
+  if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
+  if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
+  lastAzimuth = currentAzimuth;
+
+  const orbitSpeed = Math.abs(deltaAngle) / Math.max(dt, 0.001);
+  if (orbitSpeed > 0.15) {
+    wobbleVel -= Math.min(orbitSpeed * 0.15, 0.9) * dt * 12;
+  }
+
+  controls.update();
   renderer.render(scene, camera);
 }
 animate();
